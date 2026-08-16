@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Access Terminal</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      background: #161b22;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.8);
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      border: 1px solid #30363d;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      background: #238636;
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      margin-bottom: 15px;
+    }
+
+    h2 { color: #58a6ff; margin-top: 0; font-size: 1.3rem; }
+    p { color: #8b949e; font-size: 0.95rem; line-height: 1.5; }
+
+    input {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: white;
+      margin-bottom: 10px;
+      outline: none;
+      width: 80%;
+      font-family: inherit;
+      text-align: center;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      background-color: #21262d;
+      color: #79c0ff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #30363d;
+      border-color: #58a6ff;
+    }
+
+    #feedback { margin-top: 15px; font-weight: bold; min-height: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div id="badge" class="badge">SYSTEM LOCK</div>
+    <h2 id="title">Stage 1: Access Passkey</h2>
+    <p id="description">To proceed, enter the secret passkey.</p>
+    
+    <div id="interactive-area">
+      <input type="text" id="answer-input" placeholder="Type passkey...">
+      <button onclick="checkPasskey()">Submit</button>
+    </div>
+
+    <p id="feedback"></p>
+  </div>
+
+  <script>
+    let currentLevel = 1;
+    let attempts = 0;
+    let userName = "";
+
+    function checkPasskey() {
+      const inputVal = document.getElementById("answer-input").value.trim();
+      const feedback = document.getElementById("feedback");
+
+      if (!inputVal) {
+        feedback.style.color = "#f85149";
+        feedback.innerText = "> Input cannot be empty!";
+        return;
+      }
+
+      // If user types numbers or random non-alphabetic keys
+      if (!isNaN(inputVal) || inputVal.length < 2) {
+        attempts++;
+        feedback.style.color = "#f85149";
+        feedback.innerText = `> Access Denied (Attempt ${attempts}). Hint: Try typing your actual name!`;
+      } else {
+        // Valid name entered
+        userName = inputVal.charAt(0).toUpperCase() + inputVal.slice(1).toLowerCase();
+        currentLevel = 2;
+        
+        document.getElementById("badge").innerText = `SYSTEM LOCK: ${userName.toUpperCase()}`;
+        document.getElementById("title").innerText = `Stage 2: Priority Protocols`;
+        document.getElementById("description").innerText = `Target: ${userName}. What is the official rule for handling stress or a bad mood?`;
+        document.getElementById("interactive-area").innerHTML = `
+          <button onclick="nextLevel(1)">[A] Good food, cold coffee & quality drama</button>
+          <button onclick="nextLevel(0)">[B] Overthinking at 2 AM</button>
+        `;
+        feedback.style.color = "#3fb950";
+        feedback.innerText = `> Passkey accepted! Target recognized as ${userName}.`;
+      }
+    }
+
+    function nextLevel(choice) {
+      const title = document.getElementById("title");
+      const description = document.getElementById("description");
+      const area = document.getElementById("interactive-area");
+      const feedback = document.getElementById("feedback");
+
+      if (currentLevel === 2) {
+        if (choice === 1) {
+          currentLevel = 3;
+          title.innerText = "Stage 3: Reward Matrix";
+          description.innerText = "Final Step: Select your preferred reward pass.";
+          area.innerHTML = `
+            <button onclick="nextLevel(1)">[A] Coffee or Dessert date on me</button>
+            <button onclick="nextLevel(2)">[B] Coffee / Dessert + Gossip Session</button>
+          `;
+          feedback.style.color = "#3fb950";
+          feedback.innerText = "> Almost decrypted...";
+        } else {
+          feedback.style.color = "#f85149";
+          feedback.innerText = "> Invalid choice. Overthinking is strictly prohibited!";
+        }
+      }
+      else if (currentLevel === 3) {
+        document.getElementById("badge").innerText = "ACCESS GRANTED";
+        document.getElementById("badge").style.background = "#8957e5";
+        
+        title.innerText = `${userName}'s Clearance Pass 🏆`;
+        description.innerText = "Security protocol successfully bypassed.";
+        area.innerHTML = `
+          <div style="background: #0d1117; padding: 15px; border-radius: 6px; border: 1px solid #30363d; text-align: left;">
+            <strong style="color: #79c0ff;">Claim Code: #${userName.toUpperCase()}-VIP</strong><br><br>
+            <span style="color: #c9d1d9; font-size: 0.9rem;">1x Coffee or Dessert Session Unlocked for ${userName}.</span><br><br>
+            <em style="color: #8b949e; font-size: 0.85rem;">*Send a screenshot of this screen to claim.*</em>
+          </div>
+        `;
+        feedback.style.color = "#3fb950";
+        feedback.innerText = "> System Unlocked 100%.";
+      }
+    }
+  </script>
+</body>
+</html>
