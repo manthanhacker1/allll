@@ -101,6 +101,26 @@
     let attempts = 0;
     let userName = "";
 
+    // Validation Logic for real names vs keyboard smash
+    function isValidName(name) {
+      const cleanName = name.toLowerCase().trim();
+
+      // Rule 1: Letters only, length between 3 and 20
+      if (!/^[a-zA-Z]{3,20}$/.test(cleanName)) return false;
+
+      // Rule 2: Must contain at least one vowel (a, e, i, o, u, y)
+      const vowelCount = (cleanName.match(/[aeiouy]/g) || []).length;
+      if (vowelCount === 0) return false;
+
+      // Rule 3: Detect 4+ consecutive consonants (keyboard smash like 'fygf', 'rtgy', 'bcdf')
+      if (/[bcdfghjklmnpqrstvwxz]{4,}/i.test(cleanName)) return false;
+
+      // Rule 4: Reject repeated characters like 'aaaa', 'zzzz'
+      if (/(.)\1{2,}/.test(cleanName)) return false;
+
+      return true;
+    }
+
     function checkPasskey() {
       const inputVal = document.getElementById("answer-input").value.trim();
       const feedback = document.getElementById("feedback");
@@ -111,13 +131,12 @@
         return;
       }
 
-      // If user types numbers or random non-alphabetic keys
-      if (!isNaN(inputVal) || inputVal.length < 2) {
+      // Check if it's a valid name
+      if (!isValidName(inputVal)) {
         attempts++;
         feedback.style.color = "#f85149";
-        feedback.innerText = `> Access Denied (Attempt ${attempts}). Hint: Try typing your actual name!`;
+        feedback.innerText = `> Invalid Passkey/Name! (Attempt ${attempts}). Please enter a real name.`;
       } else {
-        // Valid name entered
         userName = inputVal.charAt(0).toUpperCase() + inputVal.slice(1).toLowerCase();
         currentLevel = 2;
         
@@ -129,7 +148,7 @@
           <button onclick="nextLevel(0)">[B] Overthinking at 2 AM</button>
         `;
         feedback.style.color = "#3fb950";
-        feedback.innerText = `> Passkey accepted! Target recognized as ${userName}.`;
+        feedback.innerText = `> Passkey accepted! Identity verified as ${userName}.`;
       }
     }
 
